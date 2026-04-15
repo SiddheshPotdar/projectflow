@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Statistics Row -->
+<div class="stats-row">
+    <div class="stat-card blue">
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-number">{{ active_count }}</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label">Completed</div>
+        <div class="stat-number">{{ completed_count }}</div>
+    </div>
+    <div class="stat-card yellow">
+        <div class="stat-label">On Hold</div>
+        <div class="stat-number">{{ on_hold_count }}</div>
+    </div>
+</div>
+
+<!-- Two-Column Layout -->
+<div class="dashboard-grid">
+    <!-- Left Column: New Project Form -->
+    <div class="form-card">
+        <h3><i class="fas fa-plus-circle" style="margin-right: 8px;"></i>New Project</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-rocket"></i> Create Project
+            </button>
+        </form>
+    </div>
+
+    <!-- Right Column: Project List -->
+    <div class="project-list-container">
+        <h3><i class="fas fa-list-ul"></i> My Projects</h3>
+        {% if projects %}
+            {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-card-header">
+                        <span class="project-title">{{ project.name }}</span>
+                        <span class="project-status">
+                            {% if project.status == 'active' %}🔵 Active
+                            {% elif project.status == 'completed' %}✅ Completed
+                            {% else %}⏸️ On Hold
+                            {% endif %}
+                        </span>
+                    </div>
+                    <p class="project-description">{{ project.description|truncatewords:20 }}</p>
+                    
+                    <!-- Progress Bar -->
+                    {% with progress=project.progress %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ progress }}%;"></div>
+                    </div>
+                    <small>{{ progress }}% completed</small>
+                    {% endwith %}
+                    
+                    <!-- Actions (we'll wire these later) -->
+                    <div class="project-actions">
+                        <button class="btn-icon" title="View Tasks"><i class="fas fa-eye"></i> View</button>
+                        <button class="btn-icon" title="Edit Project"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-icon" title="Delete Project"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-folder-open" style="font-size: 3rem; opacity: 0.5;"></i>
+                <p>No projects yet. Create your first project!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
