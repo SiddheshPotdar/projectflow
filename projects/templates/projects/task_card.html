@@ -1,0 +1,59 @@
+<div style="background: white; border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">{{ task.title }}</h4>
+        <div style="display: flex; gap: 0.3rem;">
+            <a href="{% url 'task_edit' task.pk %}" style="color: #6c757d;"><i class="fas fa-edit"></i></a>
+            <a href="{% url 'task_delete' task.pk %}" style="color: #dc3545;"><i class="fas fa-trash"></i></a>
+        </div>
+    </div>
+    <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">{{ task.description|truncatewords:10 }}</p>
+    {% if task.assigned_to %}
+        <div style="font-size: 0.8rem; margin-bottom: 0.5rem;">👤 {{ task.assigned_to.username }}</div>
+    {% endif %}
+    {% if task.due_date %}
+        <div style="font-size: 0.8rem; margin-bottom: 0.5rem;">📅 Due: {{ task.due_date|date:"M d, Y" }}</div>
+    {% endif %}
+    
+    <!-- Status Dropdown (simple form to update status) -->
+    <form method="post" action="{% url 'task_edit' task.pk %}" style="margin-top: 0.5rem;">
+        {% csrf_token %}
+        <select name="status" style="width: 100%; padding: 0.25rem; border-radius: 4px; border: 1px solid #dee2e6;" onchange="this.form.submit()">
+            <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To Do</option>
+            <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+            <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+        </select>
+    </form>
+    
+    <!-- Comments Section (simplified) -->
+    <div style="margin-top: 0.8rem; border-top: 1px solid #e9ecef; padding-top: 0.5rem;">
+        <button onclick="toggleComments('comments-{{ task.pk }}')" style="background: none; border: none; color: #007bff; cursor: pointer; font-size: 0.8rem;">
+            <i class="fas fa-comment"></i> Comments ({{ task.comments.count }})
+        </button>
+        <div id="comments-{{ task.pk }}" style="display: none; margin-top: 0.5rem;">
+            {% for comment in task.comments.all %}
+                <div style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.3rem;">
+                    <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
+                    <div style="font-size: 0.7rem; color: #adb5bd;">{{ comment.created_at|timesince }} ago</div>
+                </div>
+            {% empty %}
+                <p style="font-size: 0.8rem; color: #adb5bd;">No comments yet.</p>
+            {% endfor %}
+            <form method="post" action="{% url 'comment_create' task.pk %}" style="display: flex; gap: 0.3rem; margin-top: 0.5rem;">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="Add a comment..." style="flex:1; padding:0.25rem; border:1px solid #dee2e6; border-radius:4px;">
+                <button type="submit" style="background:#007bff; color:white; border:none; border-radius:4px; padding:0.25rem 0.5rem;">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleComments(id) {
+    var el = document.getElementById(id);
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+</script>

@@ -58,12 +58,12 @@
                     {% endwith %}
                     
                     <!-- Actions (we'll wire these later) -->
-                    <div class="project-actions">
-    <button class="btn-icon" title="View Tasks"><i class="fas fa-eye"></i> View</button>
-    <button class="btn-icon" title="Edit Project"><i class="fas fa-edit"></i> Edit</button>
-    <button class="btn-icon" title="Delete Project"><i class="fas fa-trash"></i> Delete</button>
-    <button class="btn-icon add-task" title="Add Task"><i class="fas fa-plus"></i> Add Task</button>
-</div>
+                <div class="project-actions">
+                    <a href="{% url 'project_detail' project.pk %}" class="btn-icon" title="View Tasks"><i class="fas fa-eye"></i> View</a>
+                    <a href="{% url 'project_edit' project.pk %}" class="btn-icon" title="Edit Project"><i class="fas fa-edit"></i> Edit</a>
+                    <a href="{% url 'project_delete' project.pk %}" class="btn-icon" title="Delete Project" style="color:#dc3545;"><i class="fas fa-trash"></i> Delete</a>
+                    <a href="{% url 'project_detail' project.pk %}" class="btn-icon add-task" title="Add Task"><i class="fas fa-plus"></i> Add Task</a>
+                </div>
                 </div>
             {% endfor %}
         {% else %}

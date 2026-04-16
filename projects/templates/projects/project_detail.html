@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+        <h1 style="margin-bottom: 0.25rem;">{{ project.name }}</h1>
+        <span class="project-status" style="display: inline-block;">
+            {% if project.status == 'active' %}🔵 Active
+            {% elif project.status == 'completed' %}✅ Completed
+            {% else %}⏸️ On Hold
+            {% endif %}
+        </span>
+    </div>
+    <div>
+        <a href="{% url 'project_edit' project.pk %}" class="btn-icon"><i class="fas fa-edit"></i> Edit</a>
+        <a href="{% url 'project_delete' project.pk %}" class="btn-icon" style="color: #dc3545;"><i class="fas fa-trash"></i> Delete</a>
+        <a href="{% url 'home' %}" class="btn-icon">← Back to Dashboard</a>
+    </div>
+</div>
+<p style="color: #6c757d; margin-bottom: 2rem;">{{ project.description }}</p>
+
+<!-- Progress Bar -->
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem;">
+        <span>Overall Progress</span>
+        <span>{{ project.progress }}%</span>
+    </div>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: {{ project.progress }}%;"></div>
+    </div>
+</div>
+
+<!-- Add Task Quick Form -->
+<div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h3 style="margin-bottom: 1rem;">Add New Task</h3>
+    <form method="post" action="{% url 'task_create' project.pk %}">
+        {% csrf_token %}
+        {{ task_form.as_p }}
+        <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 2rem;">Add Task</button>
+    </form>
+</div>
+
+<!-- Kanban Board (Three Columns) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+    <!-- To Do Column -->
+    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+        <h3 style="margin-bottom: 1rem; color: #495057;">📋 To Do</h3>
+        {% for task in todo_tasks %}
+            {% include 'projects/task_card.html' with task=task %}
+        {% empty %}
+            <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
+        {% endfor %}
+    </div>
+    
+    <!-- In Progress Column -->
+    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+        <h3 style="margin-bottom: 1rem; color: #495057;">⚙️ In Progress</h3>
+        {% for task in in_progress_tasks %}
+            {% include 'projects/task_card.html' with task=task %}
+        {% empty %}
+            <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
+        {% endfor %}
+    </div>
+    
+    <!-- Done Column -->
+    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+        <h3 style="margin-bottom: 1rem; color: #495057;">✅ Done</h3>
+        {% for task in done_tasks %}
+            {% include 'projects/task_card.html' with task=task %}
+        {% empty %}
+            <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
