@@ -30,15 +30,32 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# core/settings.py
+
 INSTALLED_APPS = [
+    'daphne',  # must be first for runserver to use ASGI
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'projects',   # <-- add this
+    'channels',
+    'projects',
 ]
+
+# ASGI application
+ASGI_APPLICATION = 'core.asgi.application'
+
+# Channel layers (use Redis)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
