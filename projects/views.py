@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from .models import Project, Task, Comment
 from .forms import ProjectForm, ProjectEditForm, TaskForm, CommentForm
+from django.db.models import Q
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -50,7 +51,16 @@ def dashboard(request):
     else:
         form = ProjectForm()
     
-    projects = Project.objects.filter(members=request.user).order_by('-created_at')
+    # Get search query
+    query = request.GET.get('q', '').strip()
+    projects = Project.objects.filter(members=request.user)
+
+    if query:
+        projects = projects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+
+    projects = projects.order_by('-created_at')
     
     context = {
         'form': form,
@@ -58,6 +68,7 @@ def dashboard(request):
         'active_count': active_count,
         'completed_count': completed_count,
         'on_hold_count': on_hold_count,
+        'search_query': query,   # add this
     }
     return render(request, 'projects/dashboard.html', context)
 

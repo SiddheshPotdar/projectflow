@@ -34,7 +34,15 @@
 
     <!-- Right Column: Project List -->
     <div class="project-list-container">
-        <h3><i class="fas fa-list-ul"></i> My Projects</h3>
+        <h3>
+            <i class="fas fa-list-ul"></i> 
+            {% if search_query %}
+                Search results for "{{ search_query }}"
+                <a href="{% url 'home' %}" style="font-size:0.9rem; margin-left:1rem;">Clear</a>
+            {% else %}
+                My Projects
+            {% endif %}
+        </h3>
         {% if projects %}
             {% for project in projects %}
                 <div class="project-card">
