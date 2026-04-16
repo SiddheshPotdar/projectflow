@@ -37,29 +37,49 @@
     <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
         <i class="fas fa-plus-circle" style="color: #007bff;"></i> Add New Task
     </h3>
-    <form method="post" action="{% url 'task_create' project.pk %}" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+    
+    <!-- Error Popup Style Message -->
+    {% if task_form.errors %}
+        <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #dc3545; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-exclamation-circle" style="font-size: 1.2rem;"></i>
+            <div>
+                <strong>Please fix the following errors:</strong>
+                <ul style="margin: 0.5rem 0 0 1.2rem;">
+                    {% for field, errors in task_form.errors.items %}
+                        {% for error in errors %}
+                            <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" style="margin-left: auto; background: none; border: none; color: #721c24; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        </div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'task_create' project.pk %}">
         {% csrf_token %}
-        <div>
-            <label for="{{ task_form.title.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Task Title</label>
-            {{ task_form.title }}
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+            <div>
+                <label for="{{ task_form.title.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Task Title</label>
+                {{ task_form.title }}
+            </div>
+            <div>
+                <label for="{{ task_form.assigned_to.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Assign To</label>
+                {{ task_form.assigned_to }}
+            </div>
+            <div>
+                <label for="{{ task_form.due_date.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Due Date</label>
+                {{ task_form.due_date }}
+            </div>
+            <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem; white-space: nowrap;">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
         </div>
-        <div>
-            <label for="{{ task_form.assigned_to.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Assign To</label>
-            {{ task_form.assigned_to }}
+        <div style="margin-top: 1rem;">
+            <label for="{{ task_form.description.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Description (optional)</label>
+            {{ task_form.description }}
         </div>
-        <div>
-            <label for="{{ task_form.due_date.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Due Date</label>
-            {{ task_form.due_date }}
-        </div>
-        <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem; white-space: nowrap;">
-            <i class="fas fa-plus"></i> Add Task
-        </button>
     </form>
-    <!-- Description field on new row -->
-    <div style="margin-top: 1rem;">
-        <label for="{{ task_form.description.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Description (optional)</label>
-        {{ task_form.description }}
-    </div>
 </div>
 
 <!-- Kanban Board (Three Columns) -->

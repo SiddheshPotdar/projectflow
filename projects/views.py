@@ -127,16 +127,30 @@ def task_create(request, project_pk):
         form = TaskForm(request.POST, project=project)
         if form.is_valid():
             task = form.save(commit=False)
-            task.status = 'todo'  # new tasks always start as To Do
             task.project = project
             task.created_by = request.user
+            task.status = 'todo'
             task.save()
             messages.success(request, 'Task added successfully.')
             return redirect('project_detail', pk=project.pk)
+        else:
+            # Form invalid – re-render project detail with errors
+            tasks = project.tasks.all().order_by('-created_at')
+            todo_tasks = tasks.filter(status='todo')
+            in_progress_tasks = tasks.filter(status='in_progress')
+            done_tasks = tasks.filter(status='done')
+            
+            context = {
+                'project': project,
+                'todo_tasks': todo_tasks,
+                'in_progress_tasks': in_progress_tasks,
+                'done_tasks': done_tasks,
+                'task_form': form,  # pass the bound form with errors
+            }
+            return render(request, 'projects/project_detail.html', context)
     else:
-        form = TaskForm(project=project)
-    
-    return render(request, 'projects/task_form.html', {'form': form, 'project': project})
+        # GET request shouldn't happen here, but just in case redirect
+        return redirect('project_detail', pk=project.pk)
 
 @login_required
 def task_edit(request, pk):
