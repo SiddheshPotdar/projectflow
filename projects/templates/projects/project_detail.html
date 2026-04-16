@@ -85,33 +85,141 @@
 <!-- Kanban Board (Three Columns) -->
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
     <!-- To Do Column -->
-    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+    <div data-column="todo"  style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
         <h3 style="margin-bottom: 1rem; color: #495057;">📋 To Do</h3>
+        <div class="column-body">
         {% for task in todo_tasks %}
             {% include 'projects/task_card.html' with task=task %}
         {% empty %}
             <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
         {% endfor %}
+        </div>
     </div>
     
     <!-- In Progress Column -->
-    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+    <div data-column="todo"  style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
         <h3 style="margin-bottom: 1rem; color: #495057;">⚙️ In Progress</h3>
+        <div class="column-body">
         {% for task in in_progress_tasks %}
             {% include 'projects/task_card.html' with task=task %}
         {% empty %}
             <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
         {% endfor %}
+        </div>
     </div>
     
     <!-- Done Column -->
-    <div style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
+    <div data-column="todo"  style="background: #f1f3f5; border-radius: 12px; padding: 1rem;">
         <h3 style="margin-bottom: 1rem; color: #495057;">✅ Done</h3>
+        <div class="column-body">
         {% for task in done_tasks %}
             {% include 'projects/task_card.html' with task=task %}
         {% empty %}
             <p style="color: #adb5bd; text-align: center; padding: 1rem;">No tasks</p>
         {% endfor %}
+        </div>
     </div>
 </div>
+<script>
+    const projectId = {{ project.id }};
+    const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${wsScheme}://${window.location.host}/ws/project/${projectId}/`;
+    
+    let socket = null;
+    
+    function connectWebSocket() {
+        socket = new WebSocket(wsUrl);
+        
+        socket.onopen = function(e) {
+            console.log('WebSocket connected');
+        };
+        
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Received update:', data);
+            handleUpdate(data);
+        };
+        
+        socket.onclose = function(e) {
+            console.log('WebSocket closed, reconnecting in 3s...');
+            setTimeout(connectWebSocket, 3000);
+        };
+        
+        socket.onerror = function(e) {
+            console.error('WebSocket error');
+        };
+    }
+    
+    function handleUpdate(update) {
+    if (update.type !== 'comment_added') {
+        // For task changes, reload the page to show updated board
+        location.reload();
+    } else {
+        // Handle comment addition without reload (as above)
+        addCommentToTask(update.task_id, update.comment_id, update.username, update.content, update.created_at);
+    }
+}
+    
+    // These functions will manipulate the DOM
+    function addTaskToBoard(id, title, status, assigned_to, due_date) {
+        // Create a new task card element (simplified – we'll fetch full HTML via AJAX or build it)
+        // For simplicity, we'll reload the board on task creation for now
+        // In production you'd build the card with JS, but let's keep it simple:
+        location.reload(); // temporary – we can improve later
+    }
+    
+    function updateTaskOnBoard(id, title, status, assigned_to, due_date) {
+        const card = document.querySelector(`[data-task-id="${id}"]`);
+        if (card) {
+            // Update title, assigned, due date
+            card.querySelector('.task-title').textContent = title;
+            // Update status column (move card)
+            moveCardToColumn(card, status);
+        }
+    }
+    
+    function removeTaskFromBoard(id) {
+        const card = document.querySelector(`[data-task-id="${id}"]`);
+        if (card) card.remove();
+    }
+    
+    function addCommentToTask(taskId, commentId, username, content, created_at) {
+        const commentsDiv = document.querySelector(`#comments-${taskId}`);
+        if (commentsDiv) {
+            const commentHtml = `
+                <div style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.3rem;">
+                    <strong>${username}</strong>: ${content}
+                    <div style="font-size: 0.7rem; color: #adb5bd;">just now</div>
+                </div>
+            `;
+            commentsDiv.insertAdjacentHTML('beforeend', commentHtml);
+            // Update comment count
+            const btn = document.querySelector(`button[onclick*="comments-${taskId}"]`);
+            if (btn) {
+                const countSpan = btn.querySelector('.comment-count') || document.createElement('span');
+                const currentCount = parseInt(btn.textContent.match(/\d+/)?.[0] || 0);
+                btn.innerHTML = `<i class="fas fa-comment"></i> Comments (${currentCount + 1})`;
+            }
+        }
+    }
+    
+    function moveCardToColumn(card, newStatus) {
+        const columns = {
+            'todo': document.querySelector('[data-column="todo"] .column-body'),
+            'in_progress': document.querySelector('[data-column="in_progress"] .column-body'),
+            'done': document.querySelector('[data-column="done"] .column-body')
+        };
+        if (columns[newStatus]) {
+            columns[newStatus].appendChild(card);
+        }
+    }
+    
+    function updateProgress() {
+        // Could fetch new progress via AJAX or just recalc from tasks
+        location.reload(); // temporary
+    }
+    
+    // Initialize connection when page loads
+    connectWebSocket();
+</script>
 {% endblock %}

@@ -7,6 +7,22 @@ from django.http import HttpResponseForbidden
 from .models import Project, Task, Comment
 from .forms import ProjectForm, ProjectEditForm, TaskForm, CommentForm
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+def broadcast_project_update(project_id, event_type, data):
+    """Send a real-time update to all clients in the project room."""
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'project_{project_id}',
+        {
+            'type': 'project_update',
+            'data': {
+                'type': event_type,
+                **data
+            }
+        }
+    )
 def home(request):
     if request.user.is_authenticated:
         return dashboard(request)
@@ -131,6 +147,13 @@ def task_create(request, project_pk):
             task.created_by = request.user
             task.status = 'todo'
             task.save()
+            broadcast_project_update(project.id, 'task_created', {
+                'task_id': task.id,
+                'title': task.title,
+                'status': task.status,
+                'assigned_to': task.assigned_to.username if task.assigned_to else None,
+                'due_date': task.due_date.isoformat() if task.due_date else None,
+            })
             messages.success(request, 'Task added successfully.')
             return redirect('project_detail', pk=project.pk)
         else:
@@ -162,6 +185,13 @@ def task_edit(request, pk):
         form = TaskForm(request.POST, instance=task, project=task.project)
         if form.is_valid():
             form.save()
+            broadcast_project_update(task.project.id, 'task_updated', {
+                'task_id': task.id,
+                'title': task.title,
+                'status': task.status,
+                'assigned_to': task.assigned_to.username if task.assigned_to else None,
+                'due_date': task.due_date.isoformat() if task.due_date else None,
+            })
             messages.success(request, 'Task updated successfully.')
             return redirect('project_detail', pk=task.project.pk)
     else:
@@ -178,6 +208,9 @@ def task_delete(request, pk):
     project_pk = task.project.pk
     if request.method == 'POST':
         task.delete()
+        broadcast_project_update(project_pk, 'task_deleted', {
+            'task_id': pk,
+        })
         messages.success(request, 'Task deleted successfully.')
         return redirect('project_detail', pk=project_pk)
     return render(request, 'projects/task_confirm_delete.html', {'task': task})
@@ -196,5 +229,12 @@ def comment_create(request, task_pk):
             comment.task = task
             comment.user = request.user
             comment.save()
+            broadcast_project_update(task.project.id, 'comment_added', {
+                'task_id': task.id,
+                'comment_id': comment.id,
+                'username': request.user.username,
+                'content': comment.content,
+                'created_at': comment.created_at.isoformat(),
+            })
             messages.success(request, 'Comment added.')
     return redirect('project_detail', pk=task.project.pk)
