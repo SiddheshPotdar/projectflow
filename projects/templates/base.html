@@ -292,11 +292,15 @@
         <a href="{% url 'home' %}" class="navbar-brand">
             <i class="fas fa-rocket"></i> ProManage
         </a>
-        <div class="search-bar">
-            <form method="get" action="{% url 'home' %}">
-                <input type="text" name="q" placeholder="Search projects..." value="{{ search_query|default:'' }}">
-            </form>
-        </div>
+        {% if user.is_authenticated %}
+<div class="search-bar">
+    <form method="get" action="{% url 'home' %}">
+        <input type="text" name="q" placeholder="Search projects..." value="{{ search_query|default:'' }}">
+    </form>
+</div>
+{% else %}
+<div class="search-bar"></div> <!-- empty spacer to keep navbar balanced -->
+{% endif %}
         <div class="nav-links">
             {% if user.is_authenticated %}
                 <span>Welcome, {{ user.username }}!</span>
