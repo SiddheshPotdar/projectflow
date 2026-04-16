@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from .models import Project, Task, Comment
-from .forms import ProjectForm, TaskForm, CommentForm
+from .forms import ProjectForm, ProjectEditForm, TaskForm, CommentForm
 
 def home(request):
     if request.user.is_authenticated:
@@ -26,6 +26,7 @@ def dashboard(request):
         if form.is_valid():
             project = form.save(commit=False)
             project.created_by = request.user
+            project.status = 'active'  # force new projects to be active
             project.save()
             project.members.add(request.user)
             messages.success(request, f'Project "{project.name}" created successfully!')
@@ -92,13 +93,13 @@ def project_edit(request, pk):
         return redirect('project_detail', pk=pk)
     
     if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
+        form = ProjectEditForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
             messages.success(request, 'Project updated successfully.')
             return redirect('project_detail', pk=pk)
     else:
-        form = ProjectForm(instance=project)
+        form = ProjectEditForm(instance=project)
     
     return render(request, 'projects/project_form.html', {'form': form, 'project': project})
 
@@ -126,6 +127,7 @@ def task_create(request, project_pk):
         form = TaskForm(request.POST, project=project)
         if form.is_valid():
             task = form.save(commit=False)
+            task.status = 'todo'  # new tasks always start as To Do
             task.project = project
             task.created_by = request.user
             task.save()

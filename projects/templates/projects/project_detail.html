@@ -10,6 +10,7 @@
             {% elif project.status == 'completed' %}✅ Completed
             {% else %}⏸️ On Hold
             {% endif %}
+            <a href="{% url 'project_edit' project.pk %}" style="margin-left: 0.5rem; color: #6c757d;"><i class="fas fa-pencil-alt"></i></a>
         </span>
     </div>
     <div>
@@ -33,12 +34,32 @@
 
 <!-- Add Task Quick Form -->
 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <h3 style="margin-bottom: 1rem;">Add New Task</h3>
-    <form method="post" action="{% url 'task_create' project.pk %}">
+    <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-plus-circle" style="color: #007bff;"></i> Add New Task
+    </h3>
+    <form method="post" action="{% url 'task_create' project.pk %}" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 1rem; align-items: end;">
         {% csrf_token %}
-        {{ task_form.as_p }}
-        <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 2rem;">Add Task</button>
+        <div>
+            <label for="{{ task_form.title.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Task Title</label>
+            {{ task_form.title }}
+        </div>
+        <div>
+            <label for="{{ task_form.assigned_to.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Assign To</label>
+            {{ task_form.assigned_to }}
+        </div>
+        <div>
+            <label for="{{ task_form.due_date.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Due Date</label>
+            {{ task_form.due_date }}
+        </div>
+        <button type="submit" class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem; white-space: nowrap;">
+            <i class="fas fa-plus"></i> Add Task
+        </button>
     </form>
+    <!-- Description field on new row -->
+    <div style="margin-top: 1rem;">
+        <label for="{{ task_form.description.id_for_label }}" style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Description (optional)</label>
+        {{ task_form.description }}
+    </div>
 </div>
 
 <!-- Kanban Board (Three Columns) -->

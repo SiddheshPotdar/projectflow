@@ -20,7 +20,8 @@ class Project(models.Model):
         return self.name
 
     def progress(self):
-        """Return percentage of completed tasks (0-100)."""
+        if self.status == 'completed':
+            return 100
         total_tasks = self.tasks.count()
         if total_tasks == 0:
             return 0
