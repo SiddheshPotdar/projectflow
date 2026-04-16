@@ -1,13 +1,47 @@
-{% extends 'base.html' %} 
-{# Formatter Shield #}
-{% block title %}Login{% endblock %} 
-{# Formatter Shield #}
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %} 
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+<div style="max-width: 400px; margin: 3rem auto;">
+    <div style="background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 2.5rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-rocket" style="font-size: 2.5rem; color: #007bff;"></i>
+            <h2 style="margin-top: 0.5rem; color: #1e293b;">Welcome Back</h2>
+            <p style="color: #6c757d; font-size: 0.9rem;">Sign in to your account</p>
+        </div>
+
+        {% if form.errors %}
+            <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-circle"></i> Invalid username or password.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.2rem;">
+                <label for="id_username" style="display: block; margin-bottom: 0.3rem; font-weight: 500; color: #495057;">Username</label>
+                <input type="text" name="username" id="id_username" required
+                       style="width: 100%; padding: 0.7rem 1rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem; transition: border 0.2s;"
+                       onfocus="this.style.borderColor='#007bff'; this.style.outline='none';"
+                       onblur="this.style.borderColor='#dee2e6';">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="id_password" style="display: block; margin-bottom: 0.3rem; font-weight: 500; color: #495057;">Password</label>
+                <input type="password" name="password" id="id_password" required
+                       style="width: 100%; padding: 0.7rem 1rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem; transition: border 0.2s;"
+                       onfocus="this.style.borderColor='#007bff'; this.style.outline='none';"
+                       onblur="this.style.borderColor='#dee2e6';">
+            </div>
+            <button type="submit" 
+                    style="width: 100%; background-color: #007bff; color: white; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s;"
+                    onmouseover="this.style.backgroundColor='#0069d9'"
+                    onmouseout="this.style.backgroundColor='#007bff'">
+                Sign In
+            </button>
+        </form>
+        <div style="text-align: center; margin-top: 1.5rem; color: #6c757d;">
+            Don't have an account? <a href="{% url 'signup' %}" style="color: #007bff; text-decoration: none; font-weight: 500;">Sign up</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

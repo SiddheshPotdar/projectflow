@@ -1,13 +1,66 @@
 {% extends 'base.html' %}
-{# #}
 {% block title %}Sign Up{% endblock %}
-{# #}
+
 {% block content %}
-<h2>Sign Up</h2>
-<form method="post">
-  {% csrf_token %} 
-  {{ form.as_p }}
-  <button type="submit">Sign Up</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+<div style="max-width: 450px; margin: 3rem auto;">
+    <div style="background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 2.5rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-user-plus" style="font-size: 2.5rem; color: #28a745;"></i>
+            <h2 style="margin-top: 0.5rem; color: #1e293b;">Create Account</h2>
+            <p style="color: #6c757d; font-size: 0.9rem;">Join ProManage today</p>
+        </div>
+
+        {% if form.errors %}
+            <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-circle"></i> Please correct the errors below.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.2rem;">
+                <label for="id_username" style="display: block; margin-bottom: 0.3rem; font-weight: 500; color: #495057;">Username</label>
+                <input type="text" name="username" id="id_username" required
+                       style="width: 100%; padding: 0.7rem 1rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem;"
+                       onfocus="this.style.borderColor='#007bff'; this.style.outline='none';"
+                       onblur="this.style.borderColor='#dee2e6';">
+                {% if form.username.errors %}
+                    <div style="color: #dc3545; font-size: 0.8rem; margin-top: 0.3rem;">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1.2rem;">
+                <label for="id_password1" style="display: block; margin-bottom: 0.3rem; font-weight: 500; color: #495057;">Password</label>
+                <input type="password" name="password1" id="id_password1" required
+                       style="width: 100%; padding: 0.7rem 1rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem;"
+                       onfocus="this.style.borderColor='#007bff'; this.style.outline='none';"
+                       onblur="this.style.borderColor='#dee2e6';">
+                {% if form.password1.errors %}
+                    <div style="color: #dc3545; font-size: 0.8rem; margin-top: 0.3rem;">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+                <div style="color: #6c757d; font-size: 0.8rem; margin-top: 0.3rem;">
+                    <i class="fas fa-info-circle"></i> At least 8 characters, not too common.
+                </div>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="id_password2" style="display: block; margin-bottom: 0.3rem; font-weight: 500; color: #495057;">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" required
+                       style="width: 100%; padding: 0.7rem 1rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem;"
+                       onfocus="this.style.borderColor='#007bff'; this.style.outline='none';"
+                       onblur="this.style.borderColor='#dee2e6';">
+                {% if form.password2.errors %}
+                    <div style="color: #dc3545; font-size: 0.8rem; margin-top: 0.3rem;">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" 
+                    style="width: 100%; background-color: #28a745; color: white; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s;"
+                    onmouseover="this.style.backgroundColor='#218838'"
+                    onmouseout="this.style.backgroundColor='#28a745'">
+                Sign Up
+            </button>
+        </form>
+        <div style="text-align: center; margin-top: 1.5rem; color: #6c757d;">
+            Already have an account? <a href="{% url 'login' %}" style="color: #007bff; text-decoration: none; font-weight: 500;">Sign in</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
